@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import '../assets/fonts/Amulya_Complete/Fonts/WEB/css/amulya.css';
+@import '../assets/fonts/Synonym_Complete/Fonts/WEB/css/synonym.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,8 +8,67 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Synonym-Variable', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Amulya-Variable', 'Iowan Old Style', 'Palatino Linotype', serif;
+
+    /* Golden ratio typography tokens from a 16px base. */
+    --text-gold-xs: 0.618rem;
+    --text-gold-xs--line-height: 1.4;
+    --text-gold-sm: 1rem;
+    --text-gold-sm--line-height: 1.5;
+    --text-gold-md: 1.618rem;
+    --text-gold-md--line-height: 1.2;
+    --text-gold-lg: 2.618rem;
+    --text-gold-lg--line-height: 1.1;
+    --text-gold-xl: 4.236rem;
+    --text-gold-xl--line-height: 1;
+}
+
+:root,
+[data-theme='light'] {
+    --karta-logo-gold: #d8c182;
+    --karta-logo-frame: #e2e2e2;
+    --karta-brand-strong: #b79d5a;
+    --karta-bg: #f6f4ef;
+    --karta-surface-1: #fffdf7;
+    --karta-surface-2: #f0ead9;
+    --karta-text-strong: #12110e;
+    --karta-text-muted: #5d5848;
+    --karta-border: #d9d4c5;
+
+    --color-base-100: var(--karta-surface-1);
+    --color-base-200: var(--karta-bg);
+    --color-base-300: var(--karta-surface-2);
+    --color-base-content: var(--karta-text-strong);
+    --color-primary: var(--karta-brand-strong);
+    --color-primary-content: #15120a;
+    --color-neutral: #2f2a1f;
+    --color-neutral-content: #f4efe3;
+    color-scheme: light;
+}
+
+.dark,
+[data-theme='dark'] {
+    --karta-logo-gold: #d8c182;
+    --karta-logo-frame: #595959;
+    --karta-brand-strong: #e2cc8b;
+    --karta-bg: #0f0f0f;
+    --karta-surface-1: #171717;
+    --karta-surface-2: #25221b;
+    --karta-text-strong: #f1efea;
+    --karta-text-muted: #beb7a4;
+    --karta-border: #3f3b2f;
+
+    --color-base-100: var(--karta-surface-1);
+    --color-base-200: var(--karta-bg);
+    --color-base-300: var(--karta-surface-2);
+    --color-base-content: var(--karta-text-strong);
+    --color-primary: var(--karta-brand-strong);
+    --color-primary-content: #11100d;
+    --color-neutral: #252118;
+    --color-neutral-content: #f3eedf;
+    color-scheme: dark;
 }
 
 
@@ -39,4 +100,44 @@
 
 .mary-table-pagination button {
     @apply cursor-pointer
+}
+
+@layer base {
+    body {
+        background: radial-gradient(circle at top, color-mix(in srgb, var(--karta-surface-2) 35%, transparent), transparent 55%),
+            var(--karta-bg);
+        color: var(--karta-text-strong);
+        font-family: var(--font-sans);
+        font-size: var(--text-gold-sm);
+        line-height: var(--text-gold-sm--line-height);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        color: var(--karta-text-strong);
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+    }
+}
+
+@layer components {
+    .karta-shell {
+        border: 1px solid var(--karta-border);
+        background: color-mix(in srgb, var(--karta-surface-1) 92%, transparent);
+        border-radius: 1rem;
+    }
+
+    .karta-muted {
+        color: var(--karta-text-muted);
+    }
+
+    .karta-heading {
+        font-family: var(--font-display);
+        font-size: var(--text-gold-md);
+        line-height: var(--text-gold-md--line-height);
+    }
 }
