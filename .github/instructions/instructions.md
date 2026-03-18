@@ -14,6 +14,11 @@ applyTo:
 
 Use these instructions when generating code, reviewing changes, proposing architecture decisions, or writing documentation in this repository.
 
+# Quick Rules of Thumb
+REM (Root EM): Use for font sizes, padding, margins, and layouts to ensure consistency across the page.
+EM (Element EM): Use for properties that should scale with a component's font size (e.g., icons, padding inside buttons).
+PX: Use only for borders, shadows, or when you need absolute precision that should not change. 
+
 ## Project Context
 
 - Framework: Laravel 12
