@@ -1,0 +1,364 @@
+openapi: 3.0.3
+info:
+  title: KARTA API
+  version: v1
+  description: OpenAPI spec (skeleton) for KARTA core REST endpoints (workspaces, cards, wiki, attachments, comments)
+servers:
+  - url: https://api.example.com/api/v1
+  - url: http://localhost:8000/api/v1
+paths:
+  /workspaces:
+    post:
+      summary: Create a workspace
+      operationId: createWorkspace
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkspaceCreate'
+      responses:
+        '201':
+          description: Workspace created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+  /workspaces/{workspaceId}:
+    get:
+      summary: Get a workspace
+      operationId: getWorkspace
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+      responses:
+        '200':
+          description: Workspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+
+  /workspaces/{workspaceId}/cards:
+    get:
+      summary: List cards in a workspace
+      operationId: listCards
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 25
+        - in: query
+          name: q
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paged list of cards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedCards'
+    post:
+      summary: Create a card (allocates K-Index)
+      operationId: createCard
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardCreate'
+      responses:
+        '201':
+          description: Card created
+          headers:
+            Location:
+              description: URL of created card
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+
+  /workspaces/{workspaceId}/cards/{kIndex}:
+    get:
+      summary: Get a card by K-Index
+      operationId: getCardByKIndex
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+        - name: kIndex
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+        '404':
+          description: Not found
+    patch:
+      summary: Update a card (partial)
+      operationId: updateCard
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+        - name: kIndex
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardPatch'
+      responses:
+        '200':
+          description: Updated card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+    delete:
+      summary: Soft-delete a card
+      operationId: deleteCard
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+        - name: kIndex
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+
+  /workspaces/{workspaceId}/cards/{kIndex}/comments:
+    post:
+      summary: Add comment to card
+      operationId: addComment
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+        - name: kIndex
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentCreate'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+
+  /workspaces/{workspaceId}/wiki/pages:
+    get:
+      summary: List wiki pages
+      operationId: listWikiPages
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+      responses:
+        '200':
+          description: Wiki pages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WikiPage'
+    post:
+      summary: Create wiki page
+      operationId: createWikiPage
+      parameters:
+        - $ref: '#/components/parameters/workspaceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WikiPageCreate'
+      responses:
+        '201':
+          description: Page created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WikiPage'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    workspaceId:
+      name: workspaceId
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    WorkspaceCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        visibility:
+          type: string
+          enum: [private, public]
+        k_prefix:
+          type: string
+
+    Workspace:
+      allOf:
+        - $ref: '#/components/schemas/WorkspaceCreate'
+        - type: object
+          properties:
+            id:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+
+    CardCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        body_markdown:
+          type: string
+        priority:
+          type: string
+          enum: [critical, high, medium, low]
+        assignees:
+          type: array
+          items:
+            type: string
+
+    CardPatch:
+      type: object
+      properties:
+        title:
+          type: string
+        body_markdown:
+          type: string
+        status:
+          type: string
+        priority:
+          type: string
+
+    Card:
+      type: object
+      properties:
+        id:
+          type: string
+        k_index:
+          type: integer
+        title:
+          type: string
+        body_markdown:
+          type: string
+        status:
+          type: string
+        priority:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        links:
+          type: object
+
+    PagedCards:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+        meta:
+          type: object
+          properties:
+            page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+
+    CommentCreate:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+        parent_id:
+          type: string
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        body:
+          type: string
+        user_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    WikiPageCreate:
+      type: object
+      required: [title, body_markdown]
+      properties:
+        title:
+          type: string
+        body_markdown:
+          type: string
+        parent_id:
+          type: string
+
+    WikiPage:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body_markdown:
+          type: string
+        last_edited_by:
+          type: string
+        last_edited_at:
+          type: string
+          format: date-time
+
+security:
+  - bearerAuth: []
